@@ -1,19 +1,16 @@
 package com.example.demo.task;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-public class TaskEntity {
+public class SubtaskEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,30 +20,9 @@ public class TaskEntity {
 	private boolean completed;
 	private TaskPriority priority;
 	private LocalDateTime creationDate;
-
-	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<SubtaskEntity> subtaskList;
-
-	@PrePersist
-	public void onPrePersist() {
-		if (creationDate == null)
-			this.setCreationDate(LocalDateTime.now());
-	}
-
-	public void addSubtask(SubtaskEntity subtask) {
-		if (subtaskList == null) {
-			subtaskList = new ArrayList<>();
-		}
-		if (subtask.getCreationDate() == null) {
-			subtask.setCreationDate(creationDate);
-		}
-		subtask.setTask(this);
-		subtaskList.add(subtask);
-	}
-
-	public void deleteSubtasks() {
-		subtaskList.removeAll(subtaskList);
-	}
+	@ManyToOne
+	@JoinColumn(name = "fk_id_task")
+	private TaskEntity task;
 
 	public int getId() {
 		return id;
@@ -88,12 +64,8 @@ public class TaskEntity {
 		this.creationDate = creationDate;
 	}
 
-	public List<SubtaskEntity> getSubtasks() {
-		return subtaskList;
-	}
-
-	public void setSubtasks(List<SubtaskEntity> subtasks) {
-		this.subtaskList = subtasks;
+	public void setTask(TaskEntity task) {
+		this.task = task;
 	}
 
 }
